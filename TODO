@@ -1,0 +1,71 @@
+Notes - 
+ 
+INITIAL Tables required for port to postgres
+
+    // FROM ANALYTICS.DB
+
+    * requests (__requests from analytics.db file)
+        * id - int64 autogen
+        * url - string
+        * http_method - string
+        * origin - string
+        * http_protocol - string
+        * ip_address - string
+        * timestamp - int64 (unix time? Seconds since epoch?)
+        * external_content - bool
+
+    * metrics (__metrics from analytics.db)
+        * ??
+        * ??
+
+    // FROM SYSTEM.DB
+
+    * addons (__addons from system.db)
+        * ??
+        * ??
+
+    * config (__config from system.db)
+        * uuid - uuid (string)
+        * id - int64 autogen
+        * slug - string
+        * timestamp - int64 (unix time? Seconds since epoch?)
+        * updated - int64 (unix time? Seconds since epoch?)
+        * name - string
+        * domain - string
+        * bind_addr - string
+        * http_port - string
+        * https_port - string
+        * admin_email - string
+        * client_secret - string
+        * etag - string
+        * cors_disabled - bool
+        * gzip_disabled - bool
+        * cache_disabled - bool
+        * cache_max_age - int
+        * cache - []string??
+        * backup_basic_auth_user - string
+        * backup_basic_auth_password - string (maybe should be hash?)
+
+    * content_index (__content_index from system.db)
+        * key? (or ID [type-hash] like author-145e39aa-251c-4a15-bb75-99f0fa360672)
+
+    * uploads (__uploads from system.db)
+        * uuid - uuid (string)
+        * id - int64 (autogen)
+        * slug - string
+        * timestamp - int64 (unix time? Seconds since epoch?)
+        * updated - int64 (unix time? Seconds since epoch?)
+        * name - string (this is the filename)
+        * path - string (or url where asset is stored)
+        * content_length - int64 (filesize in bytes)
+        * content_type - string (i.e. "image/jpeg")
+
+    * users (__users from system.db)
+        * id - int64 (autogent)
+        * email - string
+        * hash - string
+        * salt - string
+
+    * tables for any other models the user will create to run their app
+        * (i.e. authors, books, cats, ....)
+    

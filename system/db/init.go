@@ -4,6 +4,8 @@
 package db
 
 import (
+	"github.com/jinzhu/gorm"
+	"database/sql"
 	"log"
 
 	"github.com/ponzu-cms/ponzu/system/item"
@@ -14,26 +16,26 @@ import (
 )
 
 var (
-	store *bolt.DB
+	db *gorm.DB
 
-	buckets = []string{
+	tables = []string{
 		"__config", "__users",
 		"__addons", "__uploads",
 		"__contentIndex",
 	}
 
-	bucketsToAdd []string
+	tablesToAdd []string
 )
 
-// Store provides access to the underlying *bolt.DB store
-func Store() *bolt.DB {
-	return store
+// DB provides access to the underlying *gorm.DB database
+func DB() *gorm.DB {
+	return db
 }
 
-// Close exports the abillity to close our db file. Should be called with defer
+// Close exports the abillity to close our db. Should be called with defer
 // after call to Init() from the same place.
 func Close() {
-	err := store.Close()
+	err := db.Close()
 	if err != nil {
 		log.Println(err)
 	}
@@ -45,14 +47,16 @@ func Init() {
 		return
 	}
 
+	// TODO: Build connection string based on .env file or environment vars
 	var err error
-	store, err = bolt.Open("system.db", 0666, nil)
+	db, err = gorm.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = db.Update(func(db *gorm.DB) error {
 		// initialize db with all content type buckets & sorted bucket for type
+		tx := db.Begin()
 		for t := range item.Types {
 			_, err := tx.CreateBucketIfNotExists([]byte(t))
 			if err != nil {
@@ -65,10 +69,10 @@ func Init() {
 			}
 		}
 
-		// init db with other buckets as needed
-		buckets = append(buckets, bucketsToAdd...)
+		// init db with other tables as needed
+		tables = append(tables, tablesToAdd...)
 
-		for _, name := range buckets {
+		for _, name := range tables {
 			_, err := tx.CreateBucketIfNotExists([]byte(name))
 			if err != nil {
 				return err
